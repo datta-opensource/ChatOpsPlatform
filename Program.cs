@@ -26,15 +26,16 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
 var app = builder.Build();
 
 // HTTP pipeline
-if (app.Environment.IsDevelopment())
-{
     app.UseSwagger();
     app.UseSwaggerUI();
-}
 
+
+app.MapGet("/", () => Results.Ok("SwiftLux WhatsApp Bot is running"));
+app.MapGet("/health", () => Results.Ok(new { status = "Healthy" }));
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
