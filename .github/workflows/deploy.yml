@@ -1,4 +1,4 @@
-name: Deploy ChatOpsPlatform to EC2
+name: Deploy SwiftLux WhatsApp Bot to EC2
 
 on:
   push:
@@ -15,7 +15,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup .NET 8
@@ -23,14 +24,14 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Restore
-        run: dotnet restore ChatOpsPlatform.sln
+      - name: Restore dependencies
+        run: dotnet restore SwiftLux.WhatsApp.Api.sln
 
-      - name: Build
-        run: dotnet build ChatOpsPlatform.sln --configuration Release --no-restore
+      - name: Build project
+        run: dotnet build SwiftLux.WhatsApp.Api.sln --configuration Release --no-restore
 
       - name: Publish API
-        run: dotnet publish SwiftLux.WhatsApp.Api/SwiftLux.WhatsApp.Api.csproj --configuration Release --output ./publish
+        run: dotnet publish SwiftLux.WhatsApp.Api/SwiftLux.WhatsApp.Api.csproj -c Release -o ./publish
 
       - name: Create deployment package
         run: tar -czf release.tar.gz -C ./publish .
@@ -40,31 +41,34 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-      - name: Add EC2 to known hosts
+      - name: Add EC2 host to known_hosts
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -p "${{ secrets.EC2_PORT }}" -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
 
       - name: Upload package to EC2
         run: |
-          scp -P "${{ secrets.EC2_PORT }}" release.tar.gz "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/tmp/release.tar.gz"
+          scp -P "${{ secrets.EC2_PORT }}" release.tar.gz "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/tmp/release.tar.gz
 
-      - name: Deploy on EC2
+      - name: Deploy on EC2 server
         run: |
           ssh -p "${{ secrets.EC2_PORT }}" "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" << 'EOF'
-            set -e
 
-            RELEASE_ID=$(date +%Y%m%d-%H%M%S)
-            RELEASE_DIR="/var/chatops/releases/$RELEASE_ID"
+          set -e
 
-            mkdir -p "$RELEASE_DIR"
-            tar -xzf /tmp/release.tar.gz -C "$RELEASE_DIR"
-            rm -f /tmp/release.tar.gz
+          RELEASE_ID=$(date +%Y%m%d-%H%M%S)
+          RELEASE_DIR="/var/chatops/releases/$RELEASE_ID"
 
-            ln -sfn "$RELEASE_DIR" /var/chatops/current
+          mkdir -p "$RELEASE_DIR"
 
-            sudo systemctl restart chatops.service
-            sudo systemctl is-active --quiet chatops.service
+          tar -xzf /tmp/release.tar.gz -C "$RELEASE_DIR"
+          rm -f /tmp/release.tar.gz
 
-            echo "Deployment completed successfully: $RELEASE_ID"
+          ln -sfn "$RELEASE_DIR" /var/chatops/current
+
+          sudo systemctl restart chatops.service
+          sudo systemctl is-active --quiet chatops.service
+
+          echo "Deployment completed successfully: $RELEASE_ID"
+
           EOF
