@@ -22,55 +22,7 @@ namespace SwiftLux.WhatsApp.Api.Services
             _logger = logger;
         }
 
-        //public async Task SendTextMessageAsync(string to, string message)
-        //{
-        //    var url = $"https://graph.facebook.com/v19.0/{_options.PhoneNumberId}/messages";
-
-        //    var payload = new
-        //    {
-        //        messaging_product = "whatsapp",
-        //        to = to,
-        //        type = "text",
-        //        text = new
-        //        {
-        //            body = message
-        //        }
-        //    };
-
-        //    var json = JsonSerializer.Serialize(payload);
-
-        //    var request = new HttpRequestMessage(HttpMethod.Post, url);
-
-        //    request.Headers.Authorization =
-        //        new System.Net.Http.Headers.AuthenticationHeaderValue(
-        //            "Bearer",
-        //            _options.AccessToken);
-
-        //    request.Content = new StringContent(
-        //        json,
-        //        Encoding.UTF8,
-        //        "application/json");
-
-        //    var response = await _httpClient.SendAsync(request);
-        //    var responseBody = await response.Content.ReadAsStringAsync();
-
-        //    _logger.LogInformation(
-        //        "WhatsApp send message response. StatusCode: {StatusCode}, Body: {Body}",
-        //        response.StatusCode,
-        //        responseBody);
-
-        //    if (!response.IsSuccessStatusCode)
-        //    {
-        //        _logger.LogError(
-        //            "Failed to send WhatsApp message. To: {To}, StatusCode: {StatusCode}, Body: {Body}",
-        //            to,
-        //            response.StatusCode,
-        //            responseBody);
-
-        //        return;
-        //    }
-        //}
-
+        
         public async Task SendTextMessageAsync(string to, string message)
         {
             var payload = new
