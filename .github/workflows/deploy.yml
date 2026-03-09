@@ -31,7 +31,7 @@ jobs:
         run: dotnet build SwiftLux.WhatsApp.Api.sln --configuration Release --no-restore
 
       - name: Publish API
-        run: dotnet publish SwiftLux.WhatsApp.Api/SwiftLux.WhatsApp.Api.csproj -c Release -o ./publish
+        run: dotnet publish SwiftLux.WhatsApp.Api.csproj -c Release -o ./publish
 
       - name: Create deployment package
         run: tar -czf release.tar.gz -C ./publish .
